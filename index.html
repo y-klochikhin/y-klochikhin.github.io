@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Random Town</title>
+</head>
+<body>
+<form id="destiny">
+    <div>
+        <label for="players-count">Players count</label>
+        <input id="players-count" name="players_count" type="number" value="4">
+    </div>
+    <div>
+        <label for="towns-per-player">Towns per player</label>
+        <input id="towns-per-player" name="towns_per_player" type="number" value="3">
+    </div>
+    <input id="submit" type="submit" value="Get Destiny">
+</form>
+<div id="result"></div>
+<script>
+    (() => {
+        const TOWNS = [
+            'Castle',
+            'Rampart',
+            'Tower',
+            'Inferno',
+            'Necropolis',
+            'Dungeon',
+            'Stronghold',
+            'Fortress',
+            'Conflux',
+            'Cove'
+        ];
+
+        function getRandomNumber(max) {
+            return Math.floor(Math.random() * max + 1);
+        }
+
+        function getRandomValues(array, count, result = []) {
+            if (count === 0 || !array.length) {
+                return result;
+            }
+
+            const number = getRandomNumber(array.length);
+            result.push(array[number - 1]);
+            array = array.filter((value, index) => index !== number - 1);
+            getRandomValues(array, count - 1, result);
+            return result;
+        }
+
+        function getDestiny(players, townsPerPlayer, forbiddenTowns = []) {
+            let towns = TOWNS.filter(town => !forbiddenTowns.includes(town));
+            return players.reduce((result, player) => {
+                result[player] = getRandomValues(towns, townsPerPlayer);
+                return result;
+            }, {});
+        }
+
+        const form = document.getElementById('destiny');
+        const submit = document.getElementById('submit');
+
+        TOWNS.forEach(town => {
+            const container = document.createElement('div');
+            const label = document.createElement('label');
+            label.for = town;
+            label.innerText = town;
+            const input = document.createElement('input');
+            input.id = town;
+            input.value = town;
+            input.type = 'checkbox';
+            input.checked = true;
+            input.classList.add('town');
+            input.name = 'town';
+
+            container.appendChild(input);
+            container.appendChild(label);
+            form.insertBefore(container, submit);
+        });
+
+        const result = document.getElementById('result');
+
+        form.onsubmit = event => {
+            event.preventDefault();
+            result.innerHTML = '';
+
+            const playersCount = form.elements.players_count.value;
+            let players = [];
+            for(let i = 0; i < playersCount; i++){
+                players.push(i + 1);
+            }
+
+            const townsPerPlayer = form.elements.towns_per_player.value;
+
+            const allowedTownsCheckboxes = document.getElementsByClassName('town');
+            const forbiddenTowns = Array.from(allowedTownsCheckboxes)
+                .filter(checkbox =>  !checkbox.checked)
+                .map(checkbox => checkbox.value);
+
+            const destiny = getDestiny(players, townsPerPlayer, forbiddenTowns);
+
+            Object.keys(destiny).forEach(player => {
+                const towns = destiny[player];
+                const element = document.createElement('div');
+
+                element.innerText = 'Player ' + player + ': ' + towns.join(', ');
+                result.appendChild(element);
+            });
+        };
+    })();
+</script>
+</body>
+</html>

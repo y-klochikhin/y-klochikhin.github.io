@@ -1,0 +1,14 @@
+node_modules
+dist
+.dist-*
+.sass-cache
+.idea
+.DS_Store
+docs
+karma_html
+app/fonts
+coverage
+cpd.report.xml
+report
+app/bower_components
+test/e2e/cypress
